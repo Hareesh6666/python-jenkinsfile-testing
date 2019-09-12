@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Stage 1') {
             steps {
-               sh 'sonarpanda sonar-scanner \
+               sh 'PyBuilder sonar-scanner \
   -Dsonar.projectKey=Hareesh6666 \
   -Dsonar.organization=hareesh6666 \
   -Dsonar.host.url=https://sonarcloud.io \
