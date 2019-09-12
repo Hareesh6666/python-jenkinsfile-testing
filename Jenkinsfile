@@ -32,7 +32,7 @@ pipeline {
                 sh """
                     echo ${SHELL}
                     [ -d venv ] && rm -rf venv
-                    #virtualenv --python=python2.7 venv
+                    #virtualenv --python=Python-3.7.3 venv
                     virtualenv venv
                     #. venv/bin/activate
                     export PATH=${VIRTUAL_ENV}/bin:${PATH}
