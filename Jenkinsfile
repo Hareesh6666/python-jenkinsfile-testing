@@ -1,166 +1,45 @@
-#!/usr/bin/env groovy
-
-/**
- * Jenkinsfile
- */
 pipeline {
-    agent any
-    options {
-        buildDiscarder(
-            // Only keep the 10 most recent builds
-            logRotator(numToKeepStr:'10'))
-    }
-    environment {
-        projectName = 'ProjectTemplate'
-        emailTo = 'alluharish2@gmail.com'
-        emailFrom = 'alluharish2@gmail.com'
-        VIRTUAL_ENV = "${env.WORKSPACE}/venv"
-    }
-
+    agent none
     stages {
-
-        /*
-        stage ('Checkout') {
+        stage('Build') {
+            agent {
+                docker {
+                    image 'python:2-alpine'
+                }
+            }
             steps {
-                checkout scm
+                sh 'python -m py_compile sources/add2vals.py sources/calc.py'
             }
         }
-        */
-
-        stage ('Install_Requirements') {
-            steps {
-                sh """
-                    echo ${SHELL}
-                    [ -d venv ] && rm -rf venv
-                    #virtualenv --python=python2.7 venv
-                    virtualenv venv
-                    #. venv/bin/activate
-                    export PATH=${VIRTUAL_ENV}/bin:${PATH}
-                    pip install --upgrade pip
-                    pip install -r requirements.txt -r dev-requirements.txt
-                    make clean
-                """
+        stage('Test') {
+            agent {
+                docker {
+                    image 'qnib/pytest'
+                }
             }
-        }
-
-        stage ('Check_style') {
             steps {
-                sh """
-                    #. venv/bin/activate
-                    [ -d report ] || mkdir report
-                    export PATH=${VIRTUAL_ENV}/bin:${PATH}
-                    make check || true
-                """
-                sh """
-                    export PATH=${VIRTUAL_ENV}/bin:${PATH}
-                    make flake8 | tee report/flake8.log || true
-                """
-                sh """
-                    export PATH=${VIRTUAL_ENV}/bin:${PATH}
-                    make pylint | tee report/pylint.log || true
-                """
-                step([$class: 'WarningsPublisher',
-                  parserConfigurations: [[
-                    parserName: 'Pep8',
-                    pattern: 'report/flake8.log'
-                  ],
-                  [
-                    parserName: 'pylint',
-                    pattern: 'report/pylint.log'
-                  ]],
-                  unstableTotalAll: '0',
-                  usePreviousBuildAsReference: true
-                ])
+                sh 'py.test --verbose --junit-xml test-reports/results.xml sources/test_calc.py'
             }
-        }
-
-        stage ('Unit Tests') {
-            steps {
-                sh """
-                    #. venv/bin/activate
-                    export PATH=${VIRTUAL_ENV}/bin:${PATH}
-                    make unittest || true
-                """
-            }
-
             post {
                 always {
-                    junit keepLongStdio: true, testResults: 'report/nosetests.xml'
-                    publishHTML target: [
-                        reportDir: 'report/coverage',
-                        reportFiles: 'index.html',
-                        reportName: 'Coverage Report - Unit Test'
-                    ]
+                    junit 'test-reports/results.xml'
                 }
             }
         }
-
-        stage ('System Tests') {
-            steps {
-                sh """
-                    #. venv/bin/activate
-                    export PATH=${VIRTUAL_ENV}/bin:${PATH}
-                    // Write file containing test node connection information if needed.
-                    // writeFile file: "test/fixtures/nodes.yaml", text: "---\n- node: <some-ip>\n"
-                    make systest || true
-                """
-            }
-
-            post {
-                always {
-                    junit keepLongStdio: true, testResults: 'report/nosetests.xml'
-                    publishHTML target: [
-                        reportDir: 'report/coverage',
-                        reportFiles: 'index.html',
-                        reportName: 'Coverage Report - System Test'
-                    ]
+        stage('Deliver') {
+            agent {
+                docker {
+                    image 'cdrx/pyinstaller-linux:python2'
                 }
             }
-        }
-
-        stage ('Docs') {
             steps {
-                sh """
-                    #. venv/bin/activate
-                    export PATH=${VIRTUAL_ENV}/bin:${PATH}
-                    PYTHONPATH=. pdoc --html --html-dir docs --overwrite env.projectName
-                """
+                sh 'pyinstaller --onefile sources/add2vals.py'
             }
-
             post {
-                always {
-                    publishHTML target: [
-                        reportDir: 'docs/*',
-                        reportFiles: 'index.html',
-                        reportName: 'Module Documentation'
-                    ]
+                success {
+                    archiveArtifacts 'dist/add2vals'
                 }
             }
-        }
-
-        stage ('Cleanup') {
-            steps {
-                sh 'rm -rf venv'
-            }
-        }
-    }
-
-    post {
-        failure {
-            mail body: "${env.JOB_NAME} (${env.BUILD_NUMBER}) ${env.projectName} build error " +
-                       "is here: ${env.BUILD_URL}\nStarted by ${env.BUILD_CAUSE}" ,
-                 from: env.emailFrom,
-                 //replyTo: env.emailFrom,
-                 subject: "${env.projectName} ${env.JOB_NAME} (${env.BUILD_NUMBER}) build failed",
-                 to: env.emailTo
-        }
-        success {
-            mail body: "${env.JOB_NAME} (${env.BUILD_NUMBER}) ${env.projectName} build successful\n" +
-                       "Started by ${env.BUILD_CAUSE}",
-                 from: env.emailFrom,
-                 //replyTo: env.emailFrom,
-                 subject: "${env.projectName} ${env.JOB_NAME} (${env.BUILD_NUMBER}) build successful",
-                 to: env.emailTo
         }
     }
 }
