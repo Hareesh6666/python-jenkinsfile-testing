@@ -5,7 +5,6 @@ pipeline {
             steps {
         
        stage('Code Quality') {
-     
     sh 'sonar-scanner \
   -Dsonar.projectKey=Hareesh6666 \
   -Dsonar.organization=hareesh6666 \
