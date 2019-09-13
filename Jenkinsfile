@@ -4,9 +4,9 @@ pipeline {
         stage('Stage 1') {
             steps {
         
-        stage('Code Quality') {
-     {
-    'sh sonar-scanner \
+       stage('Code Quality') {
+     withPython(Python: 'python2.7') {
+    sh 'sonar-scanner \
   -Dsonar.projectKey=Hareesh6666 \
   -Dsonar.organization=hareesh6666 \
   -Dsonar.sources=. \
