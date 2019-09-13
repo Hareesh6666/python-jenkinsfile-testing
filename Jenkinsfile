@@ -5,6 +5,7 @@ pipeline {
             steps {
         
        stage('Code Quality') {
+  '
   -Dsonar.projectKey=Hareesh6666 \
   -Dsonar.organization=hareesh6666 \
   -Dsonar.host.url=https://sonarcloud.io \
