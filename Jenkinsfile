@@ -5,7 +5,7 @@ pipeline {
             steps {
         
        stage('Code Quality') {
-     withPython(Python: 'python2.7') {
+     
     sh 'sonar-scanner \
   -Dsonar.projectKey=Hareesh6666 \
   -Dsonar.organization=hareesh6666 \
