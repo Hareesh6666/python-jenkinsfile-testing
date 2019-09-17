@@ -4,7 +4,7 @@ pipeline {
         stage('Stage 1') {
             steps {
         
-       stage('Code Quality') echo $Hareesh {
+       stage('Code Quality')  {
   sh 'mvn sonar:sonar \
    -Dsonar.projectKey=Hareesh6666 \
   -Dsonar.organization=hareesh6666 \
