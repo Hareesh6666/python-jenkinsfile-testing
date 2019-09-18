@@ -6,7 +6,8 @@ pipeline {
         
        stage('Code Quality')  {
   
-          
+        withMaven(jdk: 'JDK-1.8', maven: 'Maven-3.6.0') {
+     sh 'mvn sonar:sonar \  
   export SONAR_SCANNER_VERSION=4.0.0.1744
 export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-linux
 rm -rf $SONAR_SCANNER_HOME
@@ -15,7 +16,7 @@ curl -sSLo $HOME/.sonar/sonar-scanner.zip https://binaries.sonarsource.com/Distr
 unzip $HOME/.sonar/sonar-scanner.zip -d $HOME/.sonar/
 rm $HOME/.sonar/sonar-scanner.zip
 export PATH=$SONAR_SCANNER_HOME/bin:$PATH
-export SONAR_SCANNER_OPTS="-server"
+            export SONAR_SCANNER_OPTS="-server"'}
           
      }    
       
