@@ -5,10 +5,7 @@ pipeline {
             steps {
         
        stage('Code Quality')  {
-  
-        {
-  
-  export SONAR_SCANNER_VERSION=4.0.0.1744
+export SONAR_SCANNER_VERSION=4.0.0.1744
 export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-linux
 rm -rf $SONAR_SCANNER_HOME
 mkdir -p $SONAR_SCANNER_HOME
@@ -23,5 +20,5 @@ export PATH=$SONAR_SCANNER_HOME/bin:$PATH
    }
     }
 }
-           }
+           
 
