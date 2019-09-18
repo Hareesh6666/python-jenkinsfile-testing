@@ -7,7 +7,7 @@ pipeline {
        stage('Code Quality')  {
   
         {
-     sh ' sonar:sonar \  
+     sh ' 
   export SONAR_SCANNER_VERSION=4.0.0.1744
 export SONAR_SCANNER_HOME=$HOME/.sonar/sonar-scanner-$SONAR_SCANNER_VERSION-linux
 rm -rf $SONAR_SCANNER_HOME
